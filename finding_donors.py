@@ -39,7 +39,8 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 data = pd.read_csv("census.csv")
 
 # Success - Display the first record
-display(data.head(n=1))
+display(data.head(n=10))
+print ("dataset has {} samples with {} features each.".format(*data.shape))
 
 
 # ### Implementation: Data Exploration
@@ -51,20 +52,20 @@ display(data.head(n=1))
 # 
 # ** HINT: ** You may need to look at the table above to understand how the `'income'` entries are formatted. 
 
-# In[ ]:
+# In[2]:
 
 
 # TODO: Total number of records
-n_records = None
+n_records = data.shape[0]
 
 # TODO: Number of records where individual's income is more than $50,000
-n_greater_50k = None
+n_greater_50k = data[data['income'] == '>50K'].shape[0]
 
 # TODO: Number of records where individual's income is at most $50,000
-n_at_most_50k = None
+n_at_most_50k = data[data['income'] == '<=50K'].shape[0]
 
-# TODO: Percentage of individuals whose income is more than $50,000
-greater_percent = None
+# TODO: Percentage of individuals whose income is more than $50,000 
+greater_percent = float(n_greater_50k/n_records)*100
 
 # Print the results
 print("Total number of records: {}".format(n_records))
@@ -98,7 +99,7 @@ print("Percentage of individuals making more than $50,000: {}%".format(greater_p
 # 
 # Run the code cell below to plot a histogram of these two features. Note the range of the values present and how they are distributed.
 
-# In[ ]:
+# In[3]:
 
 
 # Split the data into features and target label
@@ -113,7 +114,7 @@ vs.distribution(data)
 # 
 # Run the code cell below to perform a transformation on the data and visualize the results. Again, note the range of values and how they are distributed. 
 
-# In[ ]:
+# In[4]:
 
 
 # Log-transform the skewed features
@@ -130,7 +131,7 @@ vs.distribution(features_log_transformed, transformed = True)
 # 
 # Run the code cell below to normalize each numerical feature. We will use [`sklearn.preprocessing.MinMaxScaler`](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html) for this.
 
-# In[ ]:
+# In[5]:
 
 
 # Import sklearn.preprocessing.StandardScaler
@@ -144,7 +145,14 @@ features_log_minmax_transform = pd.DataFrame(data = features_log_transformed)
 features_log_minmax_transform[numerical] = scaler.fit_transform(features_log_transformed[numerical])
 
 # Show an example of a record with scaling applied
-display(features_log_minmax_transform.head(n = 5))
+display(features_log_minmax_transform.head(n = 5)) 
+
+
+# In[6]:
+
+
+features_final = pd.get_dummies(features_log_minmax_transform)
+features_final
 
 
 # ### Implementation: Data Preprocessing
@@ -162,21 +170,21 @@ display(features_log_minmax_transform.head(n = 5))
 #  - Convert the target label `'income_raw'` to numerical entries.
 #    - Set records with "<=50K" to `0` and records with ">50K" to `1`.
 
-# In[ ]:
+# In[15]:
 
 
 # TODO: One-hot encode the 'features_log_minmax_transform' data using pandas.get_dummies()
-features_final = None
+features_final = pd.get_dummies(features_log_minmax_transform)
 
 # TODO: Encode the 'income_raw' data to numerical values
-income = None
+income = income_raw.apply(lambda l: 0 if l == '<=50K' else 1)
 
 # Print the number of features after one-hot encoding
 encoded = list(features_final.columns)
 print("{} total features after one-hot encoding.".format(len(encoded)))
 
 # Uncomment the following line to see the encoded feature names
-# print encoded
+print (encoded)
 
 
 # ### Shuffle and Split Data
@@ -184,7 +192,7 @@ print("{} total features after one-hot encoding.".format(len(encoded)))
 # 
 # Run the code cell below to perform this split.
 
-# In[ ]:
+# In[16]:
 
 
 # Import train_test_split
@@ -241,26 +249,26 @@ print("Testing set has {} samples.".format(X_test.shape[0]))
 # * When we have a model that always predicts '1' (i.e. the individual makes more than 50k) then our model will have no True Negatives(TN) or False Negatives(FN) as we are not making any negative('0' value) predictions. Therefore our Accuracy in this case becomes the same as our Precision(True Positives/(True Positives + False Positives)) as every prediction that we have made with value '1' that should have '0' becomes a False Positive; therefore our denominator in this case is the total number of records we have in total. 
 # * Our Recall score(True Positives/(True Positives + False Negatives)) in this setting becomes 1 as we have no False Negatives.
 
-# In[ ]:
+# In[17]:
 
 
-'''
-TP = np.sum(income) # Counting the ones as this is the naive case. Note that 'income' is the 'income_raw' data 
-encoded to numerical values done in the data preprocessing step.
+
+TP = np.sum(income) # Counting the ones as this is the naive case. Note that 'income' is the 'income_raw' data encoded to numerical values done in the data preprocessing step.
 FP = income.count() - TP # Specific to the naive case
 
 TN = 0 # No predicted negatives in the naive case
 FN = 0 # No predicted negatives in the naive case
-'''
+
 # TODO: Calculate accuracy, precision and recall
-accuracy = None
-recall = None
-precision = None
+accuracy = float (TP/(TP+FP)) #(True Positives/(True Positives + False Positives)) 
+recall = float(TP/(TP+FN)) #(True Positives/(True Positives + False Negatives))
+precision = float (TP/(TP+FP))
 
 # TODO: Calculate F-score using the formula above for beta = 0.5 and correct values for precision and recall.
-fscore = None
+fscore = (1+0.5**2)*((precision*recall)/(0.5**2*precision+recall))
 
 # Print the results 
+print("ture positive: {}, False positive: {}".format(TP, FP))
 print("Naive Predictor: [Accuracy score: {:.4f}, F-score: {:.4f}]".format(accuracy, fscore))
 
 
@@ -287,6 +295,24 @@ print("Naive Predictor: [Accuracy score: {:.4f}, F-score: {:.4f}]".format(accura
 # Structure your answer in the same format as above^, with 4 parts for each of the three models you pick. Please include references with your answer.
 
 # **Answer: **
+# 1. Decision Trees
+# >> - **real-world application** >> targeting good candidates to be sent an invitation to apply for a credit card.  given
+# certain information(attributes) about an individual like sex (male or female), age, status (student,
+# employee, or unemployed), college grade point average (GPA), annual income ..etc, to determine whether or not he/she can be a candidate. (reference: https://booksite.elsevier.com/9780124438804/leondes_expert_vol1_ch3.pdf)
+# >> - **strengths of the model** >>it can classify data without much calculations, can deal with a reasonable amount of missing values, also it not affected by outliers.
+# >> - **weaknesses of the model** >> larg tree that include dozens of decision nodes can be complicated which is have limited value, while it will be relatively easy to understand when there are few decisions and outcomes included in the tree.also while problem is getting bigger, the exponential calculation growth. it also robust to outliers, due to their tendency to overfit, they are prone to sampling errors. 
+# >> - **justification** >>  becuase decision tree deal good with binary classification, it will work will with our dataset since it decide whose candidiate for sending mail. also decision tree requiring little data pre-processing and our data is like that.
+# 2. Ensemble Methods(AdaBoost)
+# >> - **real-world application** >> text categorization tasks, for this work, weak hypotheses were used which test on the presence or absence of a word or phrase. (http://www.yorku.ca/gisweb/eats4400/boost.pdf), wind speed forecasting (http://en.cnki.com.cn/Article_en/CJFDTOTAL-DWJS201209036.htm).
+# >> -  **strengths of the model** >> AdaBoost focuses on improving the accuracy of a weak classiﬁeron the same single chunk of data at a central site that is small enough to ﬁt into mainmemory.  It requires no prior knowledge about the weak learner and so can be flexibly combined with any method for finding weak hypotheses.
+# >> - **weaknesses of the model** >> The actual performance of boosting on a particular problem is clearly dependent on the data and the weak learner. Boosting seems to be especially susceptible to noise, and can be sensitive to outliers. (http://www.yorku.ca/gisweb/eats4400/boost.pdf) 
+# >> - **justification** >> as we know that this algorithm do many iteration for the training to get best acuracy, so it's good for our data to use adaboost classifier. In addition, it works well with binary classifier.   
+# 3. Support Vector Machines (SVM)
+# >> -  **real-world application** >>  produced several successful applications in medical diagnostics and object detection to date for example, cancer genomic classification or subtyping. (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5822181/) 
+# >> - **strengths of the model** >> Less  risk of overfitting. The kernel trick is real strength of SVM, and it scales relatively well to high dimensional data. 
+# >> - **weaknesses of the model** >> it's not easy to Choose a “good” kernel function and it takes long training time for large datasets. 
+# (https://statinfer.com/204-6-8-svm-advantages-disadvantages-applications/)
+# >> - **justification** >> since we have 14 features in our data which is approximatily consierd high dimension, so i think it may be sutable for our problem. 
 
 # ### Implementation - Creating a Training and Predicting Pipeline
 # To properly evaluate the performance of each model you've chosen, it's important that you create a training and predicting pipeline that allows you to quickly and effectively train models using various sizes of training data and perform predictions on the testing data. Your implementation here will be used in the following section.
@@ -299,10 +325,12 @@ print("Naive Predictor: [Accuracy score: {:.4f}, F-score: {:.4f}]".format(accura
 #  - Calculate the F-score for both the training subset and testing set.
 #    - Make sure that you set the `beta` parameter!
 
-# In[ ]:
+# In[18]:
 
 
 # TODO: Import two metrics from sklearn - fbeta_score and accuracy_score
+from sklearn.metrics import fbeta_score
+from sklearn.metrics import accuracy_score
 
 def train_predict(learner, sample_size, X_train, y_train, X_test, y_test): 
     '''
@@ -319,39 +347,46 @@ def train_predict(learner, sample_size, X_train, y_train, X_test, y_test):
     
     # TODO: Fit the learner to the training data using slicing with 'sample_size' using .fit(training_features[:], training_labels[:])
     start = time() # Get start time
-    learner = None
+    learner = learner.fit(X_train[:sample_size],y_train[:sample_size])
     end = time() # Get end time
     
     # TODO: Calculate the training time
-    results['train_time'] = None
+    results['train_time'] = end-start
         
     # TODO: Get the predictions on the test set(X_test),
     #       then get predictions on the first 300 training samples(X_train) using .predict()
     start = time() # Get start time
-    predictions_test = None
-    predictions_train = None
+    predictions_test = learner.predict(X_test)
+    predictions_train = learner.predict(X_train[:300])
     end = time() # Get end time
     
     # TODO: Calculate the total prediction time
-    results['pred_time'] = None
+    results['pred_time'] = end - start
             
     # TODO: Compute accuracy on the first 300 training samples which is y_train[:300]
-    results['acc_train'] = None
+    results['acc_train'] = accuracy_score(y_train[:300], predictions_train)
         
     # TODO: Compute accuracy on test set using accuracy_score()
-    results['acc_test'] = None
+    results['acc_test'] = accuracy_score(y_test, predictions_test)
     
     # TODO: Compute F-score on the the first 300 training samples using fbeta_score()
-    results['f_train'] = None
+    results['f_train'] =  fbeta_score(y_train[:300], predictions_train, beta=0.5)
         
     # TODO: Compute F-score on the test set which is y_test
-    results['f_test'] = None
+    results['f_test'] = fbeta_score(y_test, predictions_test,  beta=0.5 )
        
     # Success
-    print("{} trained on {} samples.".format(learner.__class__.__name__, sample_size))
-        
+    print("{} trained on {} samples: \n testing time={}, testing accuracy= {}, and testing f-score={}.".format(learner.__class__.__name__, sample_size,  results['pred_time'] , results['acc_test'],  results['f_test']))
+    print("training time={}, training accuracy= {}, and training f-score={}.".format( results['train_time'] , results['acc_train'],  results['f_train']))
+
     # Return the results
     return results
+
+
+# In[19]:
+
+
+len(y_train)
 
 
 # ### Implementation: Initial Model Evaluation
@@ -365,23 +400,26 @@ def train_predict(learner, sample_size, X_train, y_train, X_test, y_test):
 # 
 # **Note:** Depending on which algorithms you chose, the following implementation may take some time to run!
 
-# In[ ]:
+# In[20]:
 
 
 # TODO: Import the three supervised learning models from sklearn
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
 
 # TODO: Initialize the three models
-clf_A = None
-clf_B = None
-clf_C = None
+clf_A = DecisionTreeClassifier(random_state=100)
+clf_B = SVC(random_state=100)
+clf_C = AdaBoostClassifier()
 
 # TODO: Calculate the number of samples for 1%, 10%, and 100% of the training data
 # HINT: samples_100 is the entire training set i.e. len(y_train)
 # HINT: samples_10 is 10% of samples_100 (ensure to set the count of the values to be `int` and not `float`)
 # HINT: samples_1 is 1% of samples_100 (ensure to set the count of the values to be `int` and not `float`)
-samples_100 = None
-samples_10 = None
-samples_1 = None
+samples_100 = len(y_train)
+samples_10 = int(len(y_train)/10)
+samples_1 = int(len(y_train)/100)
 
 # Collect results on the learners
 results = {}
@@ -390,7 +428,7 @@ for clf in [clf_A, clf_B, clf_C]:
     results[clf_name] = {}
     for i, samples in enumerate([samples_1, samples_10, samples_100]):
         results[clf_name][i] =         train_predict(clf, samples, X_train, y_train, X_test, y_test)
-
+        
 # Run metrics visualization for the three supervised learning models chosen
 vs.evaluate(results, accuracy, fscore)
 
@@ -410,6 +448,7 @@ vs.evaluate(results, accuracy, fscore)
 # * the algorithm's suitability for the data.
 
 # **Answer: **
+# - after evaluating these three models and comparing the f-score and accuracy on testing data (1%, 10%, 100%) of three models , i found that Adaboost classifier is the best one becuase it has largest f-score and accuracy(when sample data is 100% the test accuracy was 0.8576008844665561 and f-score was 0.7245508982035928, and it consumes a low time for prediction and training not like SVM that consumes alot! So this classifier will be suitable for our data too and give good result. 
 
 # ### Question 4 - Describing the Model in Layman's Terms
 # 
@@ -419,7 +458,9 @@ vs.evaluate(results, accuracy, fscore)
 # 
 # When explaining your model, if using external resources please include all citations.
 
-# **Answer: ** 
+# **Answer: **
+# - Adaboost is one of Ensemble Methods that takes many models (weak classifier) and joined them to get better model (strong classifier). so in order to maximize the accuracy (minimize the number of errors), adaboost fit the data to the first learner then calculate the mistacke, the second learner need to fix on the misclassified point and compute the wieght of each lerner model.
+# - AdaBoost calls a given weak algorithm/learner repeatedly in a series of rounds(t=1,...T): Train a weak model m using data samples drawn according to some weight distribution, then increase the weight of samples that are misclassified by model m, and decrease the weight of samples that are classified correctly by model m, then, train next weak model using samples drawn according to the updated weight distribution (reference: https://www.quora.com/What-is-an-intuitive-explanation-of-Gradient-Boosting),then compine them to get final model.
 
 # ### Implementation: Model Tuning
 # Fine tune the chosen model. Use grid search (`GridSearchCV`) with at least one important parameter tuned with at least 3 different values. You will need to use the entire training set for this. In the code cell below, you will need to implement the following:
@@ -435,26 +476,30 @@ vs.evaluate(results, accuracy, fscore)
 # 
 # **Note:** Depending on the algorithm chosen and the parameter list, the following implementation may take some time to run!
 
-# In[ ]:
+# In[21]:
 
 
 # TODO: Import 'GridSearchCV', 'make_scorer', and any other necessary libraries
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 # TODO: Initialize the classifier
-clf = None
+clf = AdaBoostClassifier(base_estimator= DecisionTreeClassifier(max_depth=2))
 
 # TODO: Create the parameters list you wish to tune, using a dictionary if needed.
 # HINT: parameters = {'parameter_1': [value1, value2], 'parameter_2': [value1, value2]}
-parameters = None
+parameters = {'n_estimators':[50,100,150,200] , 'learning_rate' : [0.1,0.5,1,1.5]}
 
 # TODO: Make an fbeta_score scoring object using make_scorer()
-scorer = None
+scorer = make_scorer(fbeta_score, beta = 0.5 )
 
 # TODO: Perform grid search on the classifier using 'scorer' as the scoring method using GridSearchCV()
-grid_obj = None
+grid_obj = GridSearchCV(clf, parameters, scorer)
 
 # TODO: Fit the grid search object to the training data and find the optimal parameters using fit()
-grid_fit = None
+grid_fit = grid_obj.fit(X_train, y_train)
 
 # Get the estimator
 best_clf = grid_fit.best_estimator_
@@ -484,11 +529,12 @@ print("Final F-score on the testing data: {:.4f}".format(fbeta_score(y_test, bes
 # 
 # |     Metric     | Unoptimized Model | Optimized Model |
 # | :------------: | :---------------: | :-------------: | 
-# | Accuracy Score |                   |                 |
-# | F-score        |                   |   EXAMPLE       |
+# | Accuracy Score |    0.8667         |   0.8690        |
+# | F-score        |    0.7400         |   0.7489        |
 # 
 
 # **Answer: **
+# - as we see, the accuracy of unoptimal and optimal modal is so close to each other as well as f-score. the deffrintiation between unoptimal and optimal modal is 0.0023 for accuracy and 0.0089 for f-score, so the two models are good but the optimal model is better. since the accuracy score of Naive Predictor= and F-score= 0.2917, while the accuracy score of Optimized Model= 0.8690 and F-score= 0.7489, it's mean that the optimal model is better than naive prediction.
 
 # ----
 # ## Feature Importance
@@ -501,6 +547,7 @@ print("Final F-score on the testing data: {:.4f}".format(fbeta_score(y_test, bes
 # When **Exploring the Data**, it was shown there are thirteen available features for each individual on record in the census data. Of these thirteen records, which five features do you believe to be most important for prediction, and in what order would you rank them and why?
 
 # **Answer:**
+# - the five features that i believe that is most important are: age, capital-loss, capital-gain, education level and occupation. i gusse the age is important becuase it gives the intuation that younge earn less than old people ofcourse bacause thay have more experience. capital-loss and capital-gain of donors is an important information to know who is gain more so that effect thier income and capital-loss gives an intuatuion who is loss lots of money that can't donate . education level may paly role, I think most of people who get high education defenetly paid to them more than people who get low degree for example secondary school. finally, the occupation of the donor will gives intuation too, becuase there are many specialest that is common that people who work in it get hight paid for instance, Tech-support earn more than Handlers-cleaners which is mean that they have more oppertonoty to earn more than $50,000 .  
 
 # ### Implementation - Extracting Feature Importance
 # Choose a `scikit-learn` supervised learning algorithm that has a `feature_importance_` attribute availble for it. This attribute is a function that ranks the importance of each feature when making predictions based on the chosen algorithm.
@@ -510,17 +557,18 @@ print("Final F-score on the testing data: {:.4f}".format(fbeta_score(y_test, bes
 #  - Train the supervised model on the entire training set.
 #  - Extract the feature importances using `'.feature_importances_'`.
 
-# In[ ]:
+# In[14]:
 
 
 # TODO: Import a supervised learning model that has 'feature_importances_'
 
 
 # TODO: Train the supervised model on the training set using .fit(X_train, y_train)
-model = None
+model = AdaBoostClassifier().fit(X_train, y_train)
+
 
 # TODO: Extract the feature importances using .feature_importances_ 
-importances = None
+importances = model.feature_importances_ 
 
 # Plot
 vs.feature_plot(importances, X_train, y_train)
@@ -534,11 +582,12 @@ vs.feature_plot(importances, X_train, y_train)
 # * If you were not close, why do you think these features are more relevant?
 
 # **Answer:**
+# I was close to the right prediction :) most of the features than I predict was correct except two features which are occupation and education-level, the right features are education-num and hours-per-week. The rest of features were as I expected and that make sense. 
 
 # ### Feature Selection
 # How does a model perform if we only use a subset of all the available features in the data? With less features required to train, the expectation is that training and prediction time is much lower — at the cost of performance metrics. From the visualization above, we see that the top five most important features contribute more than half of the importance of **all** features present in the data. This hints that we can attempt to *reduce the feature space* and simplify the information required for the model to learn. The code cell below will use the same optimized model you found earlier, and train it on the same training set *with only the top five important features*. 
 
-# In[ ]:
+# In[22]:
 
 
 # Import functionality for cloning a model
@@ -569,6 +618,7 @@ print("F-score on testing data: {:.4f}".format(fbeta_score(y_test, reduced_predi
 # * If training time was a factor, would you consider using the reduced data as your training set?
 
 # **Answer:**
+# the Accuracy and f-score of on training and testing data reduced when we used reduced data (less feaures). But the traing time was low which is great. So if the time is not important, the selection features is good but if the time is considard, we need to find better way for selecting features then training the data.
 
 # > **Note**: Once you have completed all of the code implementations and successfully answered each question above, you may finalize your work by exporting the iPython Notebook as an HTML document. You can do this by using the menu above and navigating to  
 # **File -> Download as -> HTML (.html)**. Include the finished document along with this notebook as your submission.
@@ -576,7 +626,7 @@ print("F-score on testing data: {:.4f}".format(fbeta_score(y_test, reduced_predi
 # ##Before You Submit
 # You will also need run the following in order to convert the Jupyter notebook into HTML, so that your submission will include both files.
 
-# In[ ]:
+# In[23]:
 
 
 get_ipython().getoutput('jupyter nbconvert *.ipynb')
