@@ -43,6 +43,13 @@ display(data.head(n=10))
 print ("dataset has {} samples with {} features each.".format(*data.shape))
 
 
+# In[2]:
+
+
+n_records = data.describe()
+n_records
+
+
 # ### Implementation: Data Exploration
 # A cursory investigation of the dataset will determine how many individuals fit into either group, and will tell us about the percentage of these individuals making more than \$50,000. In the code cell below, you will need to compute the following:
 # - The total number of records, `'n_records'`
@@ -52,12 +59,11 @@ print ("dataset has {} samples with {} features each.".format(*data.shape))
 # 
 # ** HINT: ** You may need to look at the table above to understand how the `'income'` entries are formatted. 
 
-# In[2]:
+# In[3]:
 
 
 # TODO: Total number of records
 n_records = data.shape[0]
-
 # TODO: Number of records where individual's income is more than $50,000
 n_greater_50k = data[data['income'] == '>50K'].shape[0]
 
@@ -99,7 +105,7 @@ print("Percentage of individuals making more than $50,000: {}%".format(greater_p
 # 
 # Run the code cell below to plot a histogram of these two features. Note the range of the values present and how they are distributed.
 
-# In[3]:
+# In[4]:
 
 
 # Split the data into features and target label
@@ -114,7 +120,7 @@ vs.distribution(data)
 # 
 # Run the code cell below to perform a transformation on the data and visualize the results. Again, note the range of values and how they are distributed. 
 
-# In[4]:
+# In[5]:
 
 
 # Log-transform the skewed features
@@ -131,7 +137,7 @@ vs.distribution(features_log_transformed, transformed = True)
 # 
 # Run the code cell below to normalize each numerical feature. We will use [`sklearn.preprocessing.MinMaxScaler`](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html) for this.
 
-# In[5]:
+# In[6]:
 
 
 # Import sklearn.preprocessing.StandardScaler
@@ -148,7 +154,7 @@ features_log_minmax_transform[numerical] = scaler.fit_transform(features_log_tra
 display(features_log_minmax_transform.head(n = 5)) 
 
 
-# In[6]:
+# In[7]:
 
 
 features_final = pd.get_dummies(features_log_minmax_transform)
@@ -170,7 +176,7 @@ features_final
 #  - Convert the target label `'income_raw'` to numerical entries.
 #    - Set records with "<=50K" to `0` and records with ">50K" to `1`.
 
-# In[15]:
+# In[8]:
 
 
 # TODO: One-hot encode the 'features_log_minmax_transform' data using pandas.get_dummies()
@@ -192,7 +198,7 @@ print (encoded)
 # 
 # Run the code cell below to perform this split.
 
-# In[16]:
+# In[9]:
 
 
 # Import train_test_split
@@ -249,7 +255,7 @@ print("Testing set has {} samples.".format(X_test.shape[0]))
 # * When we have a model that always predicts '1' (i.e. the individual makes more than 50k) then our model will have no True Negatives(TN) or False Negatives(FN) as we are not making any negative('0' value) predictions. Therefore our Accuracy in this case becomes the same as our Precision(True Positives/(True Positives + False Positives)) as every prediction that we have made with value '1' that should have '0' becomes a False Positive; therefore our denominator in this case is the total number of records we have in total. 
 # * Our Recall score(True Positives/(True Positives + False Negatives)) in this setting becomes 1 as we have no False Negatives.
 
-# In[17]:
+# In[10]:
 
 
 
@@ -294,25 +300,25 @@ print("Naive Predictor: [Accuracy score: {:.4f}, F-score: {:.4f}]".format(accura
 # 
 # Structure your answer in the same format as above^, with 4 parts for each of the three models you pick. Please include references with your answer.
 
-# **Answer: **
+# **Answer: **  after seeing all the classification algorithms, I think I have to choose these three models becuase they have some features that is sutible for our dataset
 # 1. Decision Trees
 # >> - **real-world application** >> targeting good candidates to be sent an invitation to apply for a credit card.  given
 # certain information(attributes) about an individual like sex (male or female), age, status (student,
 # employee, or unemployed), college grade point average (GPA), annual income ..etc, to determine whether or not he/she can be a candidate. (reference: https://booksite.elsevier.com/9780124438804/leondes_expert_vol1_ch3.pdf)
 # >> - **strengths of the model** >>it can classify data without much calculations, can deal with a reasonable amount of missing values, also it not affected by outliers.
 # >> - **weaknesses of the model** >> larg tree that include dozens of decision nodes can be complicated which is have limited value, while it will be relatively easy to understand when there are few decisions and outcomes included in the tree.also while problem is getting bigger, the exponential calculation growth. it also robust to outliers, due to their tendency to overfit, they are prone to sampling errors. 
-# >> - **justification** >>  becuase decision tree deal good with binary classification, it will work will with our dataset since it decide whose candidiate for sending mail. also decision tree requiring little data pre-processing and our data is like that.
+# >> - **justification** >> firstly, this algorithm work for classification. Becuase decision tree algorithm works good with binary classification, it will work well with our dataset since it decide whose candidate for sending mail. also decision tree requiring little data pre-processing and our data is like that.
 # 2. Ensemble Methods(AdaBoost)
 # >> - **real-world application** >> text categorization tasks, for this work, weak hypotheses were used which test on the presence or absence of a word or phrase. (http://www.yorku.ca/gisweb/eats4400/boost.pdf), wind speed forecasting (http://en.cnki.com.cn/Article_en/CJFDTOTAL-DWJS201209036.htm).
 # >> -  **strengths of the model** >> AdaBoost focuses on improving the accuracy of a weak classiﬁeron the same single chunk of data at a central site that is small enough to ﬁt into mainmemory.  It requires no prior knowledge about the weak learner and so can be flexibly combined with any method for finding weak hypotheses.
 # >> - **weaknesses of the model** >> The actual performance of boosting on a particular problem is clearly dependent on the data and the weak learner. Boosting seems to be especially susceptible to noise, and can be sensitive to outliers. (http://www.yorku.ca/gisweb/eats4400/boost.pdf) 
-# >> - **justification** >> as we know that this algorithm do many iteration for the training to get best acuracy, so it's good for our data to use adaboost classifier. In addition, it works well with binary classifier.   
+# >> - **justification** >> since we have classification problem, this model works well with binary classifier. as we know that this algorithm do many iteration for the training to get best acuracy, so it's good for our data to use adaboost classifier.
 # 3. Support Vector Machines (SVM)
 # >> -  **real-world application** >>  produced several successful applications in medical diagnostics and object detection to date for example, cancer genomic classification or subtyping. (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5822181/) 
-# >> - **strengths of the model** >> Less  risk of overfitting. The kernel trick is real strength of SVM, and it scales relatively well to high dimensional data. 
-# >> - **weaknesses of the model** >> it's not easy to Choose a “good” kernel function and it takes long training time for large datasets. 
+# >> - **strengths of the model** >> High accuracy , good theoretical guarantees regarding overfitting. The kernel trick is real strength of SVM, and it scales relatively well to high dimensional data, Handles both classification and regression, Extremely fast at prediction time.
+# >> - **weaknesses of the model** >> it's not easy to Choose a “good” kernel function and it takes long training time for large datasets, Cannot be parallelized, the whole dataset has to fit in memory.
 # (https://statinfer.com/204-6-8-svm-advantages-disadvantages-applications/)
-# >> - **justification** >> since we have 14 features in our data which is approximatily consierd high dimension, so i think it may be sutable for our problem. 
+# >> - **justification** >> this algorithm works well for this classification problem. Since we have many features in our data which is approximatily consierd high dimension, so i think it may be sutable for our problem. 
 
 # ### Implementation - Creating a Training and Predicting Pipeline
 # To properly evaluate the performance of each model you've chosen, it's important that you create a training and predicting pipeline that allows you to quickly and effectively train models using various sizes of training data and perform predictions on the testing data. Your implementation here will be used in the following section.
@@ -325,7 +331,7 @@ print("Naive Predictor: [Accuracy score: {:.4f}, F-score: {:.4f}]".format(accura
 #  - Calculate the F-score for both the training subset and testing set.
 #    - Make sure that you set the `beta` parameter!
 
-# In[18]:
+# In[11]:
 
 
 # TODO: Import two metrics from sklearn - fbeta_score and accuracy_score
@@ -383,7 +389,7 @@ def train_predict(learner, sample_size, X_train, y_train, X_test, y_test):
     return results
 
 
-# In[19]:
+# In[12]:
 
 
 len(y_train)
@@ -400,7 +406,7 @@ len(y_train)
 # 
 # **Note:** Depending on which algorithms you chose, the following implementation may take some time to run!
 
-# In[20]:
+# In[13]:
 
 
 # TODO: Import the three supervised learning models from sklearn
@@ -409,17 +415,17 @@ from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier
 
 # TODO: Initialize the three models
-clf_A = DecisionTreeClassifier(random_state=100)
-clf_B = SVC(random_state=100)
-clf_C = AdaBoostClassifier()
+clf_A = DecisionTreeClassifier(random_state=42)
+clf_B = SVC(random_state=42)
+clf_C = AdaBoostClassifier(random_state=42)
 
 # TODO: Calculate the number of samples for 1%, 10%, and 100% of the training data
 # HINT: samples_100 is the entire training set i.e. len(y_train)
 # HINT: samples_10 is 10% of samples_100 (ensure to set the count of the values to be `int` and not `float`)
 # HINT: samples_1 is 1% of samples_100 (ensure to set the count of the values to be `int` and not `float`)
 samples_100 = len(y_train)
-samples_10 = int(len(y_train)/10)
-samples_1 = int(len(y_train)/100)
+samples_10 = int(samples_100 * 0.1) # we can calculate it with another way like this >> int(samples_100/10)
+samples_1 = int(samples_100* 0.01) # we can calculate it with another way like this >> int(samples_100/100)
 
 # Collect results on the learners
 results = {}
@@ -448,7 +454,7 @@ vs.evaluate(results, accuracy, fscore)
 # * the algorithm's suitability for the data.
 
 # **Answer: **
-# - after evaluating these three models and comparing the f-score and accuracy on testing data (1%, 10%, 100%) of three models , i found that Adaboost classifier is the best one becuase it has largest f-score and accuracy(when sample data is 100% the test accuracy was 0.8576008844665561 and f-score was 0.7245508982035928, and it consumes a low time for prediction and training not like SVM that consumes alot! So this classifier will be suitable for our data too and give good result. 
+# - after evaluating these three models and comparing the f-score and accuracy on testing data (1%, 10%, 100%) of three models , i found that Adaboost classifier is the best one becuase it has largest f-score and accuracy (when sample data is 100% the test accuracy was  0.8576008844665561 and f-score was 0.7245508982035928, and it consumes a low time for prediction and training not like SVM that consumes alot! So this classifier will be suitable for our data too and give good result. Observing the graphs we can see that Decision Tree suffered overffiting on the training set (the training scores were much higher than the testing scores).
 
 # ### Question 4 - Describing the Model in Layman's Terms
 # 
@@ -457,11 +463,9 @@ vs.evaluate(results, accuracy, fscore)
 # ** HINT: **
 # 
 # When explaining your model, if using external resources please include all citations.
-
-# **Answer: **
-# - Adaboost is one of Ensemble Methods that takes many models (weak classifier) and joined them to get better model (strong classifier). so in order to maximize the accuracy (minimize the number of errors), adaboost fit the data to the first learner then calculate the mistacke, the second learner need to fix on the misclassified point and compute the wieght of each lerner model.
-# - AdaBoost calls a given weak algorithm/learner repeatedly in a series of rounds(t=1,...T): Train a weak model m using data samples drawn according to some weight distribution, then increase the weight of samples that are misclassified by model m, and decrease the weight of samples that are classified correctly by model m, then, train next weak model using samples drawn according to the updated weight distribution (reference: https://www.quora.com/What-is-an-intuitive-explanation-of-Gradient-Boosting),then compine them to get final model.
-
+**Answer: **
+- Adaboost is one type of Ensemble Methods of classification problem. This method takes many models of weak learner and joined them to get better model which is strong learner. weak learner is defined to be a classifier that is only slightly correlated with the true classification whose performance is slightly better than random guessing. while strong learner is a classifier that is arbitrarily well-correlated with the true classification. 
+- So in order to maximize the accuracy (minimize the number of errors), AdaBoost calls a given weak algorithm/learner repeatedly in a series of rounds(t=1,...T): fit the data to the first learner of weak classifier then calculate the mistacke by putting higher attention to observations having prediction error, the second weak learner need to fix on the misclassified point of previous learner. We repeat this process until higher accuracy is achieved, then combine them all to get strong classefier. each point has a weight, so Train a weak model m using data samples drawn according to some weight distribution, then increase the weight of samples that are misclassified by model m, and decrease the weight of samples that are classified correctly by model m, then, train next weak model using samples drawn according to the updated weight distribution,then compine them to get final model.
 # ### Implementation: Model Tuning
 # Fine tune the chosen model. Use grid search (`GridSearchCV`) with at least one important parameter tuned with at least 3 different values. You will need to use the entire training set for this. In the code cell below, you will need to implement the following:
 # - Import [`sklearn.grid_search.GridSearchCV`](http://scikit-learn.org/0.17/modules/generated/sklearn.grid_search.GridSearchCV.html) and [`sklearn.metrics.make_scorer`](http://scikit-learn.org/stable/modules/generated/sklearn.metrics.make_scorer.html).
@@ -476,7 +480,7 @@ vs.evaluate(results, accuracy, fscore)
 # 
 # **Note:** Depending on the algorithm chosen and the parameter list, the following implementation may take some time to run!
 
-# In[21]:
+# In[15]:
 
 
 # TODO: Import 'GridSearchCV', 'make_scorer', and any other necessary libraries
@@ -486,7 +490,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 # TODO: Initialize the classifier
-clf = AdaBoostClassifier(base_estimator= DecisionTreeClassifier(max_depth=2))
+clf = AdaBoostClassifier(base_estimator= DecisionTreeClassifier(max_depth=2), random_state=42)
 
 # TODO: Create the parameters list you wish to tune, using a dictionary if needed.
 # HINT: parameters = {'parameter_1': [value1, value2], 'parameter_2': [value1, value2]}
@@ -557,7 +561,7 @@ print("Final F-score on the testing data: {:.4f}".format(fbeta_score(y_test, bes
 #  - Train the supervised model on the entire training set.
 #  - Extract the feature importances using `'.feature_importances_'`.
 
-# In[14]:
+# In[16]:
 
 
 # TODO: Import a supervised learning model that has 'feature_importances_'
@@ -582,12 +586,12 @@ vs.feature_plot(importances, X_train, y_train)
 # * If you were not close, why do you think these features are more relevant?
 
 # **Answer:**
-# I was close to the right prediction :) most of the features than I predict was correct except two features which are occupation and education-level, the right features are education-num and hours-per-week. The rest of features were as I expected and that make sense. 
+# I was close to the right prediction :) most of the features than I predict was correct and has a correlation except two features which are occupation and education-level, the right features are education-num and hours-per-week. The rest of features were as I expected and that make sense. I thought that hours per week is not important but now I beleive that it has strong relevant to tell of income overall, and that make sense that the type of job could be significantly different in a person's hourly wage. I think education level is so close to the education-number but the algorithm choose the education-num maybe becuase it has an numerical values which is better for adaboost model for prediction.
 
 # ### Feature Selection
 # How does a model perform if we only use a subset of all the available features in the data? With less features required to train, the expectation is that training and prediction time is much lower — at the cost of performance metrics. From the visualization above, we see that the top five most important features contribute more than half of the importance of **all** features present in the data. This hints that we can attempt to *reduce the feature space* and simplify the information required for the model to learn. The code cell below will use the same optimized model you found earlier, and train it on the same training set *with only the top five important features*. 
 
-# In[22]:
+# In[17]:
 
 
 # Import functionality for cloning a model
@@ -618,7 +622,7 @@ print("F-score on testing data: {:.4f}".format(fbeta_score(y_test, reduced_predi
 # * If training time was a factor, would you consider using the reduced data as your training set?
 
 # **Answer:**
-# the Accuracy and f-score of on training and testing data reduced when we used reduced data (less feaures). But the traing time was low which is great. So if the time is not important, the selection features is good but if the time is considard, we need to find better way for selecting features then training the data.
+# the Accuracy and f-score of on training and testing data reduced when we used reduced data (less feaures). But the traing time was low which is great. I conclude that this method of selecting featurs affects the accureacy and f-score so maybe there is another algorithm of selecting features that effect possitively on accuracy and f-score.
 
 # > **Note**: Once you have completed all of the code implementations and successfully answered each question above, you may finalize your work by exporting the iPython Notebook as an HTML document. You can do this by using the menu above and navigating to  
 # **File -> Download as -> HTML (.html)**. Include the finished document along with this notebook as your submission.
