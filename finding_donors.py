@@ -464,8 +464,10 @@ vs.evaluate(results, accuracy, fscore)
 # 
 # When explaining your model, if using external resources please include all citations.
 **Answer: **
-- Adaboost is one type of Ensemble Methods of classification problem. This method takes many models of weak learner and joined them to get better model which is strong learner. weak learner is defined to be a classifier that is only slightly correlated with the true classification whose performance is slightly better than random guessing. while strong learner is a classifier that is arbitrarily well-correlated with the true classification. 
-- So in order to maximize the accuracy (minimize the number of errors), AdaBoost calls a given weak algorithm/learner repeatedly in a series of rounds(t=1,...T): fit the data to the first learner of weak classifier then calculate the mistacke by putting higher attention to observations having prediction error, the second weak learner need to fix on the misclassified point of previous learner. We repeat this process until higher accuracy is achieved, then combine them all to get strong classefier. each point has a weight, so Train a weak model m using data samples drawn according to some weight distribution, then increase the weight of samples that are misclassified by model m, and decrease the weight of samples that are classified correctly by model m, then, train next weak model using samples drawn according to the updated weight distribution,then compine them to get final model.
+Adaboost is one type of Ensemble Methods of classification problem. This method takes many models of weak learner and joined them to get better model which is strong learner. weak learner is defined as a machine learning algorithm that gives better accuracy and only slightly correlated with the true classification whose performance is slightly better than random guessing. For example, if I'm trying to classify geometric shapes existing in a box, I have an algorithm that can correctly identify circle most of the time, but it guesses for any other shapes. this algorithm would be a weak learner because it is better than guessing. If I had an algorithm that identify every shapes as a circle, then that probably is not better than guessing, so it would not be a weak learner.
+On the other hand, strong learner is a classifier that is arbitrarily well-correlated with the true classification. let's return to the example of shapes in box, if I had another algorithm that precisly identify a triengle most of the time. and onther algorithm correctly identify the squre shape, so combining these algorithms will give better and strong algorithm/classifier which is called strong learner. 
+-The most suited and most common algorithm used with AdaBoost are decision trees with one/two level. Because these trees are so short and only contain one decision for classification. Thus it considerd as weak learner.
+- In order to maximize the accuracy = minimize the number of errors, AdaBoost algorithm calls a given weak algorithm/learner repeatedly in a series of rounds,it trained the data iteratively. fitting the data to the first weak learner then putting higher attention to missclassified observations that having prediction error. So in the next iteration, the algorithm fix this misclassified point of previous learner when train the data to second weak learner. AdaBoost algorithm repeats this process for the specified number of rounds or until higher accuracy is achieved, then combine them all to get strong classifier(final ensembled model). where in charityML, adaboos looks to votes of each weake learner of finding person earns more than 50.000 or not. then the final prediction comes from the common prediction of person earn more than 50K. thus it can pridect any new persons data and predict if the person get income more than 50k or not. 
 # ### Implementation: Model Tuning
 # Fine tune the chosen model. Use grid search (`GridSearchCV`) with at least one important parameter tuned with at least 3 different values. You will need to use the entire training set for this. In the code cell below, you will need to implement the following:
 # - Import [`sklearn.grid_search.GridSearchCV`](http://scikit-learn.org/0.17/modules/generated/sklearn.grid_search.GridSearchCV.html) and [`sklearn.metrics.make_scorer`](http://scikit-learn.org/stable/modules/generated/sklearn.metrics.make_scorer.html).
@@ -480,7 +482,7 @@ vs.evaluate(results, accuracy, fscore)
 # 
 # **Note:** Depending on the algorithm chosen and the parameter list, the following implementation may take some time to run!
 
-# In[15]:
+# In[16]:
 
 
 # TODO: Import 'GridSearchCV', 'make_scorer', and any other necessary libraries
@@ -561,7 +563,7 @@ print("Final F-score on the testing data: {:.4f}".format(fbeta_score(y_test, bes
 #  - Train the supervised model on the entire training set.
 #  - Extract the feature importances using `'.feature_importances_'`.
 
-# In[16]:
+# In[17]:
 
 
 # TODO: Import a supervised learning model that has 'feature_importances_'
@@ -591,7 +593,7 @@ vs.feature_plot(importances, X_train, y_train)
 # ### Feature Selection
 # How does a model perform if we only use a subset of all the available features in the data? With less features required to train, the expectation is that training and prediction time is much lower — at the cost of performance metrics. From the visualization above, we see that the top five most important features contribute more than half of the importance of **all** features present in the data. This hints that we can attempt to *reduce the feature space* and simplify the information required for the model to learn. The code cell below will use the same optimized model you found earlier, and train it on the same training set *with only the top five important features*. 
 
-# In[17]:
+# In[18]:
 
 
 # Import functionality for cloning a model
@@ -622,7 +624,7 @@ print("F-score on testing data: {:.4f}".format(fbeta_score(y_test, reduced_predi
 # * If training time was a factor, would you consider using the reduced data as your training set?
 
 # **Answer:**
-# the Accuracy and f-score of on training and testing data reduced when we used reduced data (less feaures). But the traing time was low which is great. I conclude that this method of selecting featurs affects the accureacy and f-score so maybe there is another algorithm of selecting features that effect possitively on accuracy and f-score.
+# the Accuracy and f-score of on training and testing data reduced when we used reduced data (less feaures). But the traing time was low which is great. I conclude that this method of selecting featurs affects the accureacy and f-score so maybe there is another algorithm of selecting features that effect possitively on accuracy and f-score. However, if the training time was an important factor, I would use the reduced data (number of features) as training set.
 
 # > **Note**: Once you have completed all of the code implementations and successfully answered each question above, you may finalize your work by exporting the iPython Notebook as an HTML document. You can do this by using the menu above and navigating to  
 # **File -> Download as -> HTML (.html)**. Include the finished document along with this notebook as your submission.
